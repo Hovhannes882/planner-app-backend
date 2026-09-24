@@ -17,7 +17,7 @@ class AuthController extends Controller
      * @param SignupRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function signup(SignupRequest $request)
+    public function signup(SignupRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
             User::create($request->only("username", "email", "password"));
@@ -36,7 +36,7 @@ class AuthController extends Controller
      * @param LoginRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function login(LoginRequest $request)
+    public function login(LoginRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
             $loginType = "email";
@@ -73,11 +73,31 @@ class AuthController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getMe(Request $request)
+    public function getMe(Request $request): \Illuminate\Http\JsonResponse
     {
         return response()->json([
             "message" => "ok",
             "data" => $request->user(),
         ]);
+    }
+
+    /**
+     * Summary of logout
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function logout(Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $request->user()->currentAccessToken()->delete();
+            return response()->json([
+                "message" => "Logged out successfully"
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                "message" => $th->getMessage(),
+            ], 500);
+        }
     }
 }
