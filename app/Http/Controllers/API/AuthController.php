@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Auth\ForgotPasswordRequest;
 use App\Http\Requests\API\Auth\LoginRequest;
+use App\Http\Requests\API\Auth\ResetPasswordRequest;
 use App\Http\Requests\API\Auth\SignupRequest;
 use App\Models\User;
 use Hash;
@@ -125,6 +126,48 @@ class AuthController extends Controller
                 default => response()->json([
                     "message" => "Unable to send password reset link."
                 ], 422),
+            };
+        } catch (\Throwable $th) {
+            return response()->json([
+                "message" => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Takes email, password and token checks if token is valid and there is a user with this email
+     * Also password_confirmation to repeat the password, 
+     * if all successfull updates user password with a new hash
+     * @param ResetPasswordRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function resetPassword(ResetPasswordRequest $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $status = Password::reset(
+                $request->only("email", "password", "password_confirmation", "token"),
+                function (User $user, string $password) {
+                    $user->forceFill([
+                        "password" => Hash::make($password)
+                    ]);
+                    $user->save();
+                }
+            );
+
+
+            return match ($status) {
+                Password::PASSWORD_RESET => response()->json([
+                    "message" => "Password reseted successfully."
+                ]),
+                Password::INVALID_USER => response()->json([
+                    "message" => "No account was found for this email address."
+                ], 422),
+                Password::INVALID_TOKEN => response()->json([
+                    "message" => "Invalid or expired password reset token."
+                ], 422),
+                default => response()->json([
+                    "message" => "Could not reset the password."
+                ], 422)
             };
         } catch (\Throwable $th) {
             return response()->json([

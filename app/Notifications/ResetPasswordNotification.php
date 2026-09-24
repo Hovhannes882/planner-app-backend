@@ -40,11 +40,11 @@ class ResetPasswordNotification extends Notification
             . '&email='
             . urlencode($notifiable->email);
 
+        $tokenExpirationInMinutes = (int) config('auth.passwords.users.expire') / 60;
 
         return (new MailMessage)
             ->line('Reset your password')
-            ->line('You requested a password reset.')
             ->action('Reset Password', $url)
-            ->line('This password reset link will expire soon.');
+            ->line("This password reset link will expire in {$tokenExpirationInMinutes} minutes.");
     }
 }
