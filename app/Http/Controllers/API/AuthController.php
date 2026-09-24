@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\API\Auth\ForgotPasswordRequest;
 use App\Http\Requests\API\Auth\LoginRequest;
 use App\Http\Requests\API\Auth\SignupRequest;
 use App\Models\User;
 use Hash;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Password;
 
 class AuthController extends Controller
 {
@@ -94,6 +96,36 @@ class AuthController extends Controller
             return response()->json([
                 "message" => "Logged out successfully"
             ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                "message" => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Sends password reset link email with token and email parameteres
+     * 
+     * @param ForgotPasswordRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function forgotPassword(ForgotPasswordRequest $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $status = Password::sendResetLink($request->only("email"));
+            return match ($status) {
+                Password::RESET_LINK_SENT => response()->json([
+                    "message" => "Password reset link sent"
+                ]),
+
+                Password::RESET_THROTTLED => response()->json([
+                    "message" => "Too many requests. Please try later."
+                ], 429),
+
+                default => response()->json([
+                    "message" => "Unable to send password reset link."
+                ], 422),
+            };
         } catch (\Throwable $th) {
             return response()->json([
                 "message" => $th->getMessage(),
