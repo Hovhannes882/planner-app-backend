@@ -7,6 +7,7 @@ use App\Http\Requests\API\Auth\LoginRequest;
 use App\Http\Requests\API\Auth\SignupRequest;
 use App\Models\User;
 use Hash;
+use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
@@ -64,5 +65,19 @@ class AuthController extends Controller
         } catch (\Throwable $th) {
             return response()->json(["message" => $th->getMessage()], 500);
         }
+    }
+
+    /**
+     * Summary of getMe
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getMe(Request $request)
+    {
+        return response()->json([
+            "message" => "ok",
+            "data" => $request->user(),
+        ]);
     }
 }
