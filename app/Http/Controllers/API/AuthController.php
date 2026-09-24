@@ -23,10 +23,10 @@ class AuthController extends Controller
     public function signup(SignupRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
-            User::create($request->only("username", "email", "password"));
-
+            $user = User::create($request->only("username", "email", "password"));
+            $user->sendEmailVerificationNotification();
             return response()->json([
-                "message" => "success"
+                "message" => "User signed up successfully."
             ]);
         } catch (\Throwable $th) {
             return response()->json(["message" => $th->getMessage()], 500);
