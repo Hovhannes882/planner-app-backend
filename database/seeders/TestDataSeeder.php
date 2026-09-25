@@ -20,7 +20,7 @@ class TestDataSeeder extends Seeder
                 $userData = [
                     "username" => "hovhanensghukasian",
                     "email" => "hovhannesghukasian@gmail.com",
-                    "password" => \Hash::make("asd123")
+                    "password" => "asd123",
                 ];
 
                 $user = User::create($userData);
