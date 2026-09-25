@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\VerifyEmailController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/signup', [AuthController::class, 'signup']);
