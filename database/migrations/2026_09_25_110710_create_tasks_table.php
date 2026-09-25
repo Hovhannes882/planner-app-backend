@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Task;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -21,7 +22,7 @@ return new class extends Migration {
             $table->string('name');
             $table->string('description')->nullable();
             $table->date('day');
-            $table->enum('priority', ['high', 'medium', 'low'])->default('high');
+            $table->enum('priority', [Task::PRIORITY_HIGH, Task::PRIORITY_MEDIUM, Task::PRIORITY_LOW])->default(Task::PRIORITY_HIGH);
             $table->timestamp('remind_at')->nullable();
             $table->timestamp('start_at')->nullable();
             $table->timestamp('end_at')->nullable();
