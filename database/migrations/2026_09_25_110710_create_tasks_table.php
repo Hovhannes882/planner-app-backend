@@ -23,8 +23,8 @@ return new class extends Migration {
             $table->date('day');
             $table->enum('priority', ['high', 'medium', 'low'])->default('high');
             $table->timestamp('remind_at')->nullable();
-            $table->timestamp('start_at');
-            $table->timestamp('end_at');
+            $table->timestamp('start_at')->nullable();
+            $table->timestamp('end_at')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
