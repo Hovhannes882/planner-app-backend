@@ -1,8 +1,8 @@
 <?php
 
+use App\Http\Controllers\API\AspectController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\VerifyEmailController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/signup', [AuthController::class, 'signup']);
@@ -16,4 +16,7 @@ Route::post('/email/verification-notification/', [VerifyEmailController::class, 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/getMe', [AuthController::class, 'getMe']);
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    // aspects
+    Route::apiResource('aspects', AspectController::class);
 });
