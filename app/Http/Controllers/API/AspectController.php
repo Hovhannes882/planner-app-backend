@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Aspects\StoreRequest;
+use App\Http\Requests\API\Aspects\UpdateRequest;
 use App\Http\Resources\AspectResource;
 use App\Models\Aspect;
 use Illuminate\Http\JsonResponse;
@@ -88,13 +89,49 @@ class AspectController extends Controller
     /**
      * Update the specified resource in storage.
      * 
-     * @param Request $request
+     * @param UpdateRequest $request
      * @param int $id
      * @return JsonResponse
      */
-    public function update(Request $request, $id)
+    public function update(UpdateRequest $request, $id)
     {
-        //
+        try {
+            $aspect = Aspect::find($id);
+
+            if (!$aspect) {
+                return response()->json([
+                    "message" => "Aspect not found!"
+                ], 404);
+            }
+
+            if ($aspect->__get("user_id") !== $request->user()->id) {
+                return response()->json([
+                    "message" => "Unauthorized access!"
+                ], 403);
+            }
+
+            $data = $request->only(['name', 'description']);
+            $icon = $request->file('icon');
+
+            if ($icon) {
+                // Delete the old icon if it exists
+                if ($aspect->icon_path) {
+                    \Storage::disk('public')->delete($aspect->icon_path);
+                }
+                // Store the new icon
+                $data["icon_path"] = $icon->store('aspect_icons', 'public');
+            }
+
+            $aspect->update($data);
+
+            return response()->json([
+                "message" => "Aspect updated!",
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th->getMessage()
+            ], 500);
+        }
     }
 
     /**
