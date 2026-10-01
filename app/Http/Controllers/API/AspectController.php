@@ -87,13 +87,13 @@ class AspectController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified aspect (name, description and icon) in storage.
      * 
      * @param UpdateRequest $request
      * @param int $id
      * @return JsonResponse
      */
-    public function update(UpdateRequest $request, $id)
+    public function update(UpdateRequest $request, $id): JsonResponse
     {
         try {
             $aspect = Aspect::find($id);
@@ -135,10 +135,37 @@ class AspectController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified aspect from storage.
+     * @param Request $request
+     * @param  $id
+     * @return JsonResponse
      */
-    public function destroy(Aspect $aspect)
+    public function destroy(Request $request, $id): JsonResponse
     {
-        //
+        try {
+            $aspect = Aspect::find($id);
+
+            if (!$aspect) {
+                return response()->json([
+                    "message" => "Aspect not found!"
+                ], 404);
+            }
+
+            if ($aspect->__get("user_id") !== $request->user()->id) {
+                return response()->json([
+                    "message" => "Unauthorized access!"
+                ], 403);
+            }
+
+            $aspect->delete();
+
+            return response()->json([
+                "message" => "Aspect deleted!"
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th->getMessage()
+            ], 500);
+        }
     }
 }
